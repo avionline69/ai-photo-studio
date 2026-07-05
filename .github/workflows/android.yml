@@ -17,20 +17,32 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # 1. Yeh step project ke andar manually gradlew file create karega
-    - name: Generate Gradle Wrapper
-      run: gradle wrapper
+    # Sahi folder ke andar hi setup gradle chalega
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        gradle-version: wrapper
 
-    # 2. Yeh step us bani hui file ko execute hone ki permission dega
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
-    # 3. Ab build command bina kisi error ke chalegi
+    # Sahi folder path ko use karke APK build karega
     - name: Build with Gradle
-      run: ./gradlew assembleDebug
+      run: |
+        if [ -f "gradlew" ]; then
+          chmod +x gradlew
+          ./gradlew assembleDebug
+        elif [ -f "app/gradlew" ]; then
+          cd app
+          chmod +x gradlew
+          ./gradlew assembleDebug
+        else
+          gradle wrapper
+          chmod +x gradlew
+          ./gradlew assembleDebug
+        fi
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: AI-Photo-Studio-APK
-        path: app/build/outputs/apk/debug/app-debug.apk
+        path: |
+          app/build/outputs/apk/debug/app-debug.apk
+          **/build/outputs/apk/debug/*.apk
