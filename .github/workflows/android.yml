@@ -17,12 +17,15 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # Missing Gradle wrapper/files ko background me generate karne ke liye
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
-      with:
-        gradle-version: wrapper
+    # 1. Yeh step project ke andar manually gradlew file create karega
+    - name: Generate Gradle Wrapper
+      run: gradle wrapper
 
+    # 2. Yeh step us bani hui file ko execute hone ki permission dega
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    # 3. Ab build command bina kisi error ke chalegi
     - name: Build with Gradle
       run: ./gradlew assembleDebug
 
